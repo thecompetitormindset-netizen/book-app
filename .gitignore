@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+*.db
+*.db-shm
+*.db-wal
+
+# Uploads & generated files (large — don't commit to git)
+uploads/
+thumbnails/
+texts/
+
+# Node
+node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db

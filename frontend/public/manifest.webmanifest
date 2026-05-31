@@ -1,0 +1,36 @@
+{
+  "name": "BookSummary",
+  "short_name": "BookSummary",
+  "description": "AI-powered book summaries, study guides & flashcards",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f13",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Library",
+      "url": "/",
+      "description": "Browse your books"
+    },
+    {
+      "name": "Stats",
+      "url": "/stats",
+      "description": "Reading statistics"
+    }
+  ]
+}
