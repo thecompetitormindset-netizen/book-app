@@ -73,7 +73,7 @@ export default function Landing() {
             <button onClick={start} className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-6 py-2.5 text-lg">
               Start writing — it’s free
             </button>
-            <Link to="/" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">I’ve used it before →</Link>
+            <Link to="/today" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">Go to my day →</Link>
           </div>
           <p className="text-sm text-slate-500 mt-3">No sign-up needed. Your notes stay private to you.</p>
         </div>

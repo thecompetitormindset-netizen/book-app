@@ -5,18 +5,12 @@ import Navbar from "./components/Navbar";
 import ReminderToasts from "./components/ReminderToasts";
 import Today from "./pages/Today";
 import Landing from "./pages/Landing";
-import { shouldShowWelcome } from "./utils/welcome";
 import Notebook from "./pages/Notebook";
 import Planner from "./pages/Planner";
 import Discover from "./pages/Discover";
 import Library from "./pages/Library";
 import BookDetail from "./pages/BookDetail";
 import Stats from "./pages/Stats";
-
-// "/" is the landing page for first-time visitors and Today for everyone else.
-function Home() {
-  return shouldShowWelcome() ? <Landing /> : <Today />;
-}
 
 export default function App() {
   // Ask the browser to keep our data even when the device is low on space.
@@ -27,8 +21,9 @@ export default function App() {
       <div className="min-h-screen">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/welcome" element={<Landing />} />
+          <Route path="/today" element={<Today />} />
           <Route path="/notebook" element={<Notebook />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/discover" element={<Discover />} />

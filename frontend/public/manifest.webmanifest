@@ -2,7 +2,7 @@
   "name": "My Notebook — notes, reminders & books",
   "short_name": "My Notebook",
   "description": "Class notes, reminders, to-dos, goals and book summaries",
-  "start_url": "/",
+  "start_url": "/today",
   "display": "standalone",
   "background_color": "#fbf0b2",
   "theme_color": "#fbf0b2",

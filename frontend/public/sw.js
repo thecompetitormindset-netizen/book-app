@@ -1,5 +1,5 @@
-const CACHE = 'booksummary-v2';
-const STATIC = ['/', '/notebook', '/planner', '/library', '/stats'];
+const CACHE = 'booksummary-v3';
+const STATIC = ['/', '/today', '/notebook', '/planner', '/library', '/stats'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
