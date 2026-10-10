@@ -7,8 +7,10 @@ import { getBooks, deleteBook, getStats } from "../api";
 const CACHE_KEY = "booksummary_books";
 
 function loadCache() {
-  try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : []; }
-  catch { return []; }
+  try {
+    const books = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+    return Array.isArray(books) ? books : []; // ignore a bad cached response
+  } catch { return []; }
 }
 function saveCache(books) {
   try { localStorage.setItem(CACHE_KEY, JSON.stringify(books)); } catch {}
@@ -74,6 +76,7 @@ export default function Library() {
   const [activeStatus, setActiveStatus] = useState("All");
   const [sort, setSort]               = useState("date_desc");
   const [fetching, setFetching]       = useState(books.length === 0);
+  const [offline, setOffline]         = useState(false);
 
   const fetchBooks = useCallback(async () => {
     try {
@@ -81,7 +84,8 @@ export default function Library() {
       setBooks(data);
       saveCache(data);
       setStats(s);
-    } catch { /* keep cached */ }
+      setOffline(false);
+    } catch { setOffline(true); /* keep cached */ }
     finally { setFetching(false); }
   }, []);
 
@@ -159,6 +163,12 @@ export default function Library() {
           </button>
         </div>
       </div>
+
+      {offline && (
+        <div className="sticky-note !rotate-0 rounded-sm mx-6 mt-2 px-4 py-3">
+          📡 Can't reach the book server right now{books.length ? " — showing your saved list." : "."} Your notebook and planner still work.
+        </div>
+      )}
 
       {/* ── Processing banner ── */}
       <ProcessingBanner stats={stats} />
@@ -238,7 +248,7 @@ export default function Library() {
       )}
 
       {/* ── Empty state ── */}
-      {!fetching && books.length === 0 && (
+      {!fetching && !offline && books.length === 0 && (
         <div className="text-center py-24 px-6">
           <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-5">
             <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

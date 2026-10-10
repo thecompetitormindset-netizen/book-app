@@ -103,6 +103,7 @@ export default function BookDetail() {
   const { id } = useParams();
   const [book, setBook]           = useState(null);
   const [loading, setLoading]     = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [regenerating, setRegen]  = useState(false);
   const [notes, setNotes]         = useState("");
   const [notesSaving, setNotesSaving] = useState(false);
@@ -114,8 +115,9 @@ export default function BookDetail() {
       const data = await getBook(id);
       setBook(data);
       setNotes(data.notes || "");
-    } catch {
+    } catch (e) {
       setBook(null);
+      setLoadError(e?.response?.status !== 404);
     } finally {
       setLoading(false);
     }
@@ -174,7 +176,9 @@ export default function BookDetail() {
   if (!book) {
     return (
       <div className="text-center py-24">
-        <p className="text-slate-400 mb-4">Book not found.</p>
+        <p className="text-slate-400 mb-4">
+          {loadError ? "📡 Can't reach the book server right now. Try again in a minute." : "Book not found."}
+        </p>
         <Link to="/library" className="text-indigo-400 hover:underline">Go back to library</Link>
       </div>
     );

@@ -8,6 +8,16 @@ export const api = axios.create({ baseURL: BASE });
 // Signed-in users send their session token so the backend knows whose
 // notebook / planner data to read and write.
 export const AUTH_KEY = "paper_auth";
+
+// If the backend can't be reached, hosts like Vercel answer /api/... with the
+// web page itself. Treat that as a failed request instead of "data".
+export class BackendUnavailable extends Error {}
+api.interceptors.response.use((res) => {
+  if (/text\/html/.test(res.headers?.["content-type"] || "")) {
+    return Promise.reject(new BackendUnavailable("Can't reach the book server"));
+  }
+  return res;
+});
 api.interceptors.request.use((config) => {
   try {
     const auth = JSON.parse(localStorage.getItem(AUTH_KEY) || "null");

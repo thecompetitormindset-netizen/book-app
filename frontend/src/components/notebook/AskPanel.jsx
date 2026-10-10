@@ -42,7 +42,7 @@ export default function AskPanel({ note, subject, onAddToPage, onClose }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, question, subject: subject?.name || "", title: note.title, notes: htmlToText(note.html).slice(0, 30000) }),
       });
-      if (!res.ok || !res.body) throw new Error();
+      if (!res.ok || !res.body || /text\/html/.test(res.headers.get("content-type") || "")) throw new Error();
       const reader = res.body.getReader();
       const dec = new TextDecoder();
       for (;;) {
