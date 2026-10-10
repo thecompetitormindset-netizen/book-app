@@ -47,9 +47,51 @@ export const TEMPLATES = [
   },
 ];
 
+// Templates for prerequisite science courses (pre-nursing track).
+export const PRENURSING_TEMPLATES = [
+  {
+    id: "lecture", icon: "🎧", name: "Lecture (Cornell)",
+    title: "Lecture",
+    html: section("Key terms / questions", "Notes", "❓ Didn't understand", "Summary in my own words"),
+  },
+  {
+    id: "anatomy", icon: "🦴", name: "A&P: structure → function",
+    title: "Structure: ",
+    html: section("Location", "Structure (what it's made of)", "Function (what it does)",
+      "How structure fits function", "Related systems", "Clinical link (why nurses care)", "Memory trick"),
+  },
+  {
+    id: "microbe", icon: "🦠", name: "Microbiology: organism profile",
+    title: "Organism: ",
+    html: section("Type (bacteria / virus / fungus / parasite)", "Shape & Gram stain", "Where it lives / how it spreads",
+      "Disease it causes & symptoms", "Treatment", "Prevention / infection control"),
+  },
+  {
+    id: "chem", icon: "⚗️", name: "Chemistry: problem",
+    title: "Problem: ",
+    html: section("Given", "Find", "Formula / concept", "Steps", "Answer (with units)", "Where I got stuck"),
+  },
+  {
+    id: "lab", icon: "🔬", name: "Lab report",
+    title: "Lab: ",
+    html: section("Purpose / question", "Hypothesis", "Materials", "Procedure", "Results / data", "Conclusion", "Sources of error"),
+  },
+  {
+    id: "concept", icon: "🧠", name: "Psych / theory concept",
+    title: "Concept: ",
+    html: section("Definition", "Who proposed it", "Key ideas / stages", "Example from real life", "How it applies to patient care"),
+  },
+];
+
+export const templatesFor = (track) => (track === "prenursing" ? PRENURSING_TEMPLATES : TEMPLATES);
+
 // One-tap symbols & nursing shorthand (or just draw them with the pen).
 export const SYMBOLS = ["↑", "↓", "→", "←", "↔", "Δ", "°", "±", "≈", "≠", "≤", "≥", "µ", "♀", "♂", "✓", "✗", "∴", "½", "c̄", "s̄", "p̄", "ā", "q̄", "×"];
 export const SHORTHAND = ["PRN", "NPO", "BID", "TID", "QID", "q4h", "STAT", "PO", "IV", "IM", "SubQ", "Hx", "Dx", "Tx", "Rx", "Sx", "s/s", "Pt", "VS", "BP", "HR", "RR", "SpO₂", "I&O", "ADLs", "LOC", "ROM", "N/V"];
+
+export const PRENURSING_SHORTHAND = ["ATP", "DNA", "RNA", "pH", "H₂O", "CO₂", "O₂", "Na⁺", "K⁺", "Ca²⁺", "Cl⁻", "H⁺", "mol", "mL", "mg", "°C", "e.g.", "i.e.", "w/", "w/o", "b/c", "vs.", "def.", "ex."];
+
+export const shorthandFor = (track) => (track === "prenursing" ? PRENURSING_SHORTHAND : SHORTHAND);
 
 export const PENS = [
   { name: "Blue pen", color: "#1e40af" },

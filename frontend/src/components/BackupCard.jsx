@@ -35,10 +35,11 @@ export default function BackupCard() {
   };
 
   const synced = !!auth;
+  const pages = notes.filter((n) => !n.deletedAt).length;
   return (
     <section className="md:col-span-2 text-sm text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 pt-2">
       <span>
-        ✓ {synced ? "Saved to your Google account" : "Saved on this device"} · {notes.filter((n) => !n.deletedAt).length} pages · {kb(storageBytes())}
+        ✓ {synced ? "Saved to your Google account" : "Saved on this device"} · {pages} page{pages === 1 ? "" : "s"} · {kb(storageBytes())}
         {!synced && persisted === false && " · sign in or keep a backup so nothing is lost"}
       </span>
       <button onClick={download} className="hover:text-white underline-offset-2 hover:underline">Download backup</button>

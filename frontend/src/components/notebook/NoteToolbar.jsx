@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { HIGHLIGHTERS, PENS, QUESTION_COLOR, SHORTHAND, SYMBOLS, TEMPLATES } from "./templates";
+import { HIGHLIGHTERS, PENS, QUESTION_COLOR, SYMBOLS, shorthandFor, templatesFor } from "./templates";
 
 // Keep the text selection in the page while tapping toolbar buttons.
 const keepSelection = (e) => e.preventDefault();
@@ -49,7 +49,7 @@ const TOOLS = [
 /** One quiet row: tools · colours for the current tool · insert · more · ask. */
 export default function NoteToolbar({
   mode, setMode, pen, setPen, marker, setMarker, onExec, onInsert, onTemplate,
-  onUndoInk, canUndoInk, onAsk, moreMenu,
+  onUndoInk, canUndoInk, onAsk, moreMenu, track,
 }) {
   const [menu, setMenu] = useState(null);
   const toggle = (name) => (open) => setMenu(open ? name : null);
@@ -115,12 +115,12 @@ export default function NoteToolbar({
           ))}
         </div>
         <div className="flex flex-wrap gap-1 mb-3">
-          {SHORTHAND.map((s) => (
+          {shorthandFor(track).map((s) => (
             <button key={s} onClick={() => onInsert(s + " ")} className="px-1.5 h-7 rounded-md hover:bg-white/8 text-sm">{s}</button>
           ))}
         </div>
         <p className="text-xs text-slate-500 mb-1">Page templates</p>
-        {TEMPLATES.map((t) => (
+        {templatesFor(track).map((t) => (
           <button key={t.id} onClick={() => { setMenu(null); onTemplate(t); }}
             className="block w-full text-left px-2 py-1 rounded-md hover:bg-white/8">{t.name}</button>
         ))}

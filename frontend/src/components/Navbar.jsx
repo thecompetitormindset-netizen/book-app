@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { markWelcomeSeen } from "../utils/welcome";
+import { usePersonal } from "../store/personal";
 import AccountButton from "./AccountButton";
 
 const LINKS = [
@@ -16,6 +17,10 @@ export default function Navbar() {
   const { pathname } = useLocation();
   // On the landing page, keep the bar minimal: logo + one way in.
   const landing = pathname === "/" || pathname === "/welcome";
+  const { settings } = usePersonal();
+  const links = settings?.track === "prenursing"
+    ? [...LINKS.slice(0, 3), { to: "/prenursing", label: "Pre-nursing" }, ...LINKS.slice(3)]
+    : LINKS;
 
   const linkClass = ({ isActive }) =>
     `py-1 px-2 border-b-2 transition-colors ${
@@ -44,7 +49,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-2 ml-4">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
               {l.label}
             </NavLink>
@@ -68,7 +73,7 @@ export default function Navbar() {
 
       {open && (
         <div className="md:hidden border-t border-white/10 bg-paper px-4 pb-3 pt-2 flex flex-col items-start gap-1">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={linkClass} onClick={() => setOpen(false)}>
               {l.label}
             </NavLink>

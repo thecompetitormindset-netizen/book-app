@@ -51,7 +51,10 @@ const FEATURES = [
   },
 ];
 
-const NURSING = ["Medication cards", "Disease templates", "SBAR clinical notes", "Lab values", "NCLEX-style quizzes", "↑ ↓ Δ c̄ s̄ PRN NPO"];
+const NURSING = [
+  "Pre-nursing: A&P, Micro & Chem templates", "Prerequisite GPA tracker", "Application deadlines & checklists", "TEAS-style quizzes",
+  "Nursing: medication cards", "SBAR clinical notes", "Lab values", "NCLEX-style quizzes",
+];
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -66,7 +69,7 @@ export default function Landing() {
             Class notes that feel like paper — and never get lost.
           </h1>
           <p className="text-lg text-slate-400 mt-4">
-            A calm notebook for nursing school. Write during lectures, highlight what matters,
+            A calm notebook for pre-nursing and nursing students. Write during lectures, highlight what matters,
             and ask about the parts you didn’t understand.
           </p>
           <div className="flex flex-wrap items-center gap-4 mt-7">
@@ -92,8 +95,8 @@ export default function Landing() {
 
       {/* Nursing */}
       <section className="py-12 border-t border-white/10">
-        <h2 className="text-3xl text-white">Made for nursing school</h2>
-        <p className="text-slate-400 mt-1 mb-4">Templates and shorthand ready when the lecture starts.</p>
+        <h2 className="text-3xl text-white">From prerequisites to NCLEX</h2>
+        <p className="text-slate-400 mt-1 mb-4">Pick pre-nursing or nursing school — templates, quizzes and the study buddy adjust to where you are.</p>
         <div className="flex flex-wrap gap-2">
           {NURSING.map((n) => (
             <span key={n} className="bg-card border border-white/10 rounded-lg px-3 py-1 text-slate-300">{n}</span>
