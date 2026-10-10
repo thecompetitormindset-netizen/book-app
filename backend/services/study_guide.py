@@ -14,7 +14,6 @@ from datetime import datetime
 import httpx
 import ollama
 
-GROQ_MODEL   = "llama-3.3-70b-versatile"
 OLLAMA_MODEL = "llama3.2"
 WIKI_HEADERS = {"User-Agent": "BookStudyApp/1.0 (personal research tool)"}
 
@@ -49,9 +48,10 @@ def _ai(prompt: str, system: str = "") -> str:
     groq_key = os.environ.get("GROQ_API_KEY", "")
     if groq_key:
         from groq import Groq
+        from services.summarizer import groq_model
         client = Groq(api_key=groq_key)
         resp = client.chat.completions.create(
-            model=GROQ_MODEL, messages=messages, max_tokens=3000,
+            model=groq_model(client), messages=messages, max_tokens=3000,
             response_format={"type": "json_object"},
         )
         return resp.choices[0].message.content
