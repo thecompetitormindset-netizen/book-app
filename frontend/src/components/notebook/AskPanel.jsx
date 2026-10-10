@@ -53,7 +53,7 @@ export default function AskPanel({ note, subject, onAddToPage, onClose }) {
       }
     } catch {
       setChat((c) => c.map((m, i) => (i === c.length - 1 ? { ...m, error: true } : m)));
-      append("Couldn't reach the study buddy. Check your internet connection and try again.");
+      append("Couldn't reach the study buddy. If it hasn't been used for a while the server may be waking up — try again in a minute.");
     } finally {
       setChat((c) => c.map((m, i) => (i === c.length - 1 ? { ...m, done: true, error: m.error || m.a.includes("[Couldn't reach the AI") } : m)));
       setBusy(false);
