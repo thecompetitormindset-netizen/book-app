@@ -11,7 +11,9 @@ export default defineConfig({
     },
   },
   define: {
-    // VITE_API_URL env var lets Vercel frontend talk to Railway backend
-    '__API_URL__': JSON.stringify(process.env.VITE_API_URL || ''),
+    // On Vercel, vercel.json forwards /api/* to the backend, so always use
+    // same-origin requests there (a stale VITE_API_URL can't break the app).
+    // Elsewhere VITE_API_URL can point the frontend at a separate backend.
+    '__API_URL__': JSON.stringify(process.env.VERCEL ? '' : (process.env.VITE_API_URL || '')),
   },
 })
