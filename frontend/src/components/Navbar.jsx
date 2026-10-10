@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { markWelcomeSeen, shouldShowWelcome } from "../utils/welcome";
 import AccountButton from "./AccountButton";
 
 const LINKS = [
@@ -12,11 +13,25 @@ const LINKS = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  // On the landing page, keep the bar minimal: logo + one way in.
+  const landing = pathname === "/welcome" || (pathname === "/" && shouldShowWelcome());
 
   const linkClass = ({ isActive }) =>
     `py-1 px-2 border-b-2 transition-colors ${
       isActive ? "text-white border-indigo-600" : "text-slate-400 border-transparent hover:text-slate-200"
     }`;
+
+  if (landing) {
+    return (
+      <nav className="border-b border-white/10 bg-paper/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <span className="font-hand text-3xl leading-none text-white">My Notebook</span>
+          <Link to="/notebook" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">Open notebook →</Link>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="border-b border-white/10 bg-paper/95 backdrop-blur-sm sticky top-0 z-50">
