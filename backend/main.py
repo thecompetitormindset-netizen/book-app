@@ -651,13 +651,28 @@ def health():
 
 
 # ── Serve React frontend (catch-all — must be last) ───────────────────────────
+def _frontend_file(rel: str):
+    """A file from the built frontend, or None. Never escapes FRONTEND_DIR."""
+    root = FRONTEND_DIR.resolve()
+    p = (root / rel.lstrip("/")).resolve()
+    if p != root and root not in p.parents:
+        return None
+    return p if p.is_file() else None
+
+
+def _app_shell():
+    index = _frontend_file("index.html")
+    if index:
+        return FileResponse(str(index))
+    # API-only deploys (e.g. Render, with the site on Vercel) have no built frontend.
+    return {"status": "ok", "service": "book-app API"}
+
+
 @app.get("/favicon.svg")
 @app.get("/icons.svg")
 def static_root_files(request_path: str = "favicon.svg"):
-    p = FRONTEND_DIR / request_path.lstrip("/")
-    if p.exists():
-        return FileResponse(str(p))
-    return FileResponse(str(FRONTEND_DIR / "index.html"))
+    p = _frontend_file(request_path)
+    return FileResponse(str(p)) if p else _app_shell()
 
 
 @app.get("/{full_path:path}")
@@ -665,7 +680,5 @@ def serve_frontend(full_path: str):
     # API routes are handled above; everything else gets the React app
     if full_path.startswith("api/") or full_path.startswith("thumbnails/") or full_path.startswith("assets/"):
         raise HTTPException(status_code=404)
-    file_path = FRONTEND_DIR / full_path
-    if file_path.exists() and file_path.is_file():
-        return FileResponse(str(file_path))
-    return FileResponse(str(FRONTEND_DIR / "index.html"))
+    p = _frontend_file(full_path)
+    return FileResponse(str(p)) if p else _app_shell()
