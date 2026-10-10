@@ -4,7 +4,7 @@ sqlalchemy>=2.0.40
 psycopg2-binary>=2.9.0
 python-multipart==0.0.9
 pdfplumber==0.11.4
-ebooklib==0.18
+ebooklib>=0.19,<1.0
 beautifulsoup4==4.12.3
 groq>=0.9.0
 ollama>=0.4.0
