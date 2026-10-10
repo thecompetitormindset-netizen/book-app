@@ -18,12 +18,8 @@ body {
   font-family: Kalam, "Patrick Hand", cursive;
   font-weight: 300;
   font-size: 17px;
+  /* plain warm paper — ruled lines only appear on actual note pages */
   background-color: var(--paper);
-  /* ruled yellow legal-pad paper */
-  background-image:
-    linear-gradient(90deg, transparent 39px, var(--margin) 39px, var(--margin) 41px, transparent 41px),
-    repeating-linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
-  background-attachment: local;
 }
 
 h1, h2, h3 {
@@ -39,7 +35,7 @@ h1, h2, h3 {
 
 /* A sheet of paper resting on the pad */
 .bg-card {
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 16px -8px rgba(80, 60, 0, 0.35);
+  box-shadow: 0 1px 2px rgba(80, 60, 0, 0.08);
 }
 
 /* ── Notebook page (ruled, with a red margin) ─────────────────────────── */
@@ -146,7 +142,6 @@ b, strong { font-weight: 700; }
 .sticky-note {
   background: #fff3a3;
   box-shadow: 0 10px 22px -10px rgba(60, 40, 0, 0.6);
-  transform: rotate(-1.5deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,11 +10,11 @@ const QUICK_TIMES = [
   { label: "Next week", get: () => { const d = tomorrowAt(8); d.setDate(d.getDate() + 6); return d; } },
 ];
 
-function Section({ title, hint, children }) {
+function Section({ title, children }) {
   return (
     <section className="bg-card border border-white/10 rounded-2xl p-5">
-      <h2 className="text-4xl text-white leading-none">{title}</h2>
-      {hint && <p className="text-slate-400 text-sm mb-3">{hint}</p>}
+      <h2 className="text-3xl text-white leading-none">{title}</h2>
+      <div className="mb-3" />
       {children}
     </section>
   );
@@ -26,8 +26,7 @@ function AlertsBanner() {
   const [perm, setPerm] = useState(notificationsSupported() ? Notification.permission : "unsupported");
   if (perm === "granted") return null;
   return (
-    <div className="sticky-note rounded-sm p-3 mb-6 flex flex-wrap items-center gap-3 !rotate-0">
-      <span className="text-lg">🔔</span>
+    <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-slate-400">
       <p className="flex-1 min-w-[14rem]">
         {perm === "denied"
           ? "Alerts are blocked in your browser settings — reminders will still pop up while this page is open."
@@ -37,7 +36,7 @@ function AlertsBanner() {
       </p>
       {perm === "default" && (
         <button onClick={async () => setPerm(await askNotificationPermission())}
-          className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-1.5">Turn on alerts</button>
+          className="bg-white/8 hover:bg-white/14 rounded-lg px-3 py-1 text-slate-200">Turn on alerts</button>
       )}
     </div>
   );
@@ -62,7 +61,7 @@ function Reminders() {
   const now = new Date().toISOString();
 
   return (
-    <Section title="⏰ Reminders" hint="Homework, tests, things to bring to class.">
+    <Section title="Reminders">
       <form onSubmit={add} className="flex flex-col gap-2 mb-4">
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="What should I remind you about?" className={inputCls} />
         <div className="flex flex-wrap gap-2">
@@ -129,7 +128,7 @@ function Todos() {
   const sorted = [...todos].sort((a, b) => a.done - b.done || (a.due || "9999").localeCompare(b.due || "9999"));
 
   return (
-    <Section title="✅ To-do" hint="Small things to get done.">
+    <Section title="To-do">
       <form
         onSubmit={(e) => { e.preventDefault(); if (!text.trim()) return; actions.addTodo(text, due || null); setText(""); setDue(""); }}
         className="flex flex-wrap gap-2 mb-3"
@@ -194,7 +193,7 @@ function Goals() {
   const { goals } = usePersonal();
   const [title, setTitle] = useState("");
   return (
-    <Section title="🎯 Personal goals" hint="Big things, broken into small steps.">
+    <Section title="Goals">
       <form onSubmit={(e) => { e.preventDefault(); if (!title.trim()) return; actions.addGoal(title); setTitle(""); }} className="flex gap-2 mb-4">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Read 12 books this year" className={`${inputCls} flex-1`} />
         <button className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4">Add goal</button>
@@ -209,9 +208,8 @@ function Goals() {
 
 export default function Planner() {
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pl-12 sm:pl-14">
-      <h1 className="text-5xl text-white">Planner</h1>
-      <p className="text-slate-400 mb-5">Reminders, to-dos and goals — all in one place.</p>
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <h1 className="text-4xl text-white mb-3">Planner</h1>
       <AlertsBanner />
       <div className="grid lg:grid-cols-2 gap-5 items-start">
         <div className="flex flex-col gap-5">

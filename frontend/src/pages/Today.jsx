@@ -9,8 +9,8 @@ function Card({ title, to, linkLabel, children, className = "" }) {
   return (
     <section className={`bg-card border border-white/10 rounded-2xl p-5 ${className}`}>
       <div className="flex items-baseline justify-between mb-2">
-        <h2 className="text-3xl text-white">{title}</h2>
-        {to && <Link to={to} className="text-indigo-400 hover:underline">{linkLabel} →</Link>}
+        <h2 className="text-2xl text-white">{title}</h2>
+        {to && <Link to={to} className="text-sm text-slate-500 hover:text-white">{linkLabel} →</Link>}
       </div>
       {children}
     </section>
@@ -44,24 +44,20 @@ export default function Today() {
   const firstName = auth?.user?.name?.split(" ")[0];
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pl-12 sm:pl-14">
-      <p className="text-slate-400 text-lg">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <p className="text-slate-500">
         {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
       </p>
-      <h1 className="text-6xl text-white mb-1">{greeting()}{firstName ? `, ${firstName}` : ""}!</h1>
-      <p className="text-slate-400 mb-6">
-        {auth ? "Your notebook is private and saved to your Google account." : "Everything you write is saved on this device. Sign in with Google to keep it on every device."}
-      </p>
+      <h1 className="text-5xl text-white mb-4">{greeting()}{firstName ? `, ${firstName}` : ""}</h1>
 
-      <div className="flex flex-wrap gap-3 mb-8">
-        <Link to="/notebook" className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-5 py-2.5 text-xl -rotate-1">✏️ Take notes</Link>
-        <Link to="/planner" className="bg-white/8 hover:bg-white/14 rounded-xl px-5 py-2.5 text-xl rotate-1">⏰ Add a reminder</Link>
-        <Link to="/library" className="bg-white/8 hover:bg-white/14 rounded-xl px-5 py-2.5 text-xl">📚 My books</Link>
+      <div className="flex flex-wrap items-center gap-4 mb-8">
+        <Link to="/notebook" className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-5 py-2 text-lg">Open notebook</Link>
+        <Link to="/planner" className="text-slate-400 hover:text-white">Add a reminder →</Link>
       </div>
 
       <div className="grid md:grid-cols-2 gap-5">
-        <Card title="⏰ Coming up" to="/planner" linkLabel="Planner">
-          {upcoming.length === 0 ? <p className="text-slate-500 italic">No reminders. Enjoy the free time!</p> : (
+        <Card title="Coming up" to="/planner" linkLabel="Planner">
+          {upcoming.length === 0 ? <p className="text-slate-500 italic">Nothing coming up.</p> : (
             <ul>
               {upcoming.map((r) => (
                 <li key={r.id} className="flex items-center gap-3 py-1.5 border-b border-white/8">
@@ -75,12 +71,12 @@ export default function Today() {
           )}
         </Card>
 
-        <Card title="✅ To-do" to="/planner" linkLabel="All tasks">
+        <Card title="To-do" to="/planner" linkLabel="All tasks">
           <form onSubmit={(e) => { e.preventDefault(); if (!todo.trim()) return; actions.addTodo(todo, today); setTodo(""); }}>
-            <input value={todo} onChange={(e) => setTodo(e.target.value)} placeholder="+ add a task for today"
+            <input value={todo} onChange={(e) => setTodo(e.target.value)} placeholder="Add a task…"
               className="w-full bg-transparent border-b border-dashed border-white/20 outline-none py-1 mb-2 text-lg" />
           </form>
-          {openTodos.length === 0 ? <p className="text-slate-500 italic">All done ✨</p> : (
+          {openTodos.length === 0 ? <p className="text-slate-500 italic">All done.</p> : (
             <ul>
               {openTodos.map((t) => (
                 <li key={t.id} className="flex items-center gap-3 py-1">
@@ -93,8 +89,8 @@ export default function Today() {
           )}
         </Card>
 
-        <Card title="📓 Recent notes" to="/notebook" linkLabel="Notebook">
-          {recent.length === 0 ? <p className="text-slate-500 italic">No notes yet — start one in your next class.</p> : (
+        <Card title="Recent notes" to="/notebook" linkLabel="Notebook">
+          {recent.length === 0 ? <p className="text-slate-500 italic">No notes yet.</p> : (
             <ul>
               {recent.map((n) => {
                 const s = subjects.find((x) => x.id === n.subjectId);
@@ -112,8 +108,8 @@ export default function Today() {
           )}
         </Card>
 
-        <Card title="🎯 Goals" to="/planner" linkLabel="Goals">
-          {goals.length === 0 ? <p className="text-slate-500 italic">Set a goal in the Planner — small steps add up.</p> : (
+        <Card title="Goals" to="/planner" linkLabel="Goals">
+          {goals.length === 0 ? <p className="text-slate-500 italic">No goals yet.</p> : (
             <ul className="flex flex-col gap-3">
               {goals.slice(0, 4).map((g) => {
                 const pct = goalProgress(g);
@@ -129,7 +125,7 @@ export default function Today() {
         </Card>
 
         {books.length > 0 && (
-          <Card title="📖 Keep reading" to="/library" linkLabel="Library" className="md:col-span-2">
+          <Card title="Keep reading" to="/library" linkLabel="Library" className="md:col-span-2">
             <div className="flex flex-wrap gap-3">
               {books.map((b) => (
                 <Link key={b.id} to={`/books/${b.id}`} className="bg-white/6 hover:bg-white/12 rounded-lg px-4 py-2 text-lg">{b.title}</Link>

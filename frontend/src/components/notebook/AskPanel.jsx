@@ -62,7 +62,7 @@ export default function AskPanel({ note, subject, onAddToPage, onClose }) {
 
   return (
     <aside className="fixed z-40 bg-card border-l border-white/10 shadow-2xl flex flex-col
-      inset-x-0 bottom-0 h-[70vh] rounded-t-2xl sm:rounded-none sm:inset-x-auto sm:right-0 sm:top-16 sm:bottom-0 sm:h-auto sm:w-[400px]">
+      inset-x-0 bottom-0 h-[70vh] rounded-t-2xl sm:rounded-none sm:inset-x-auto sm:right-0 sm:top-14 sm:bottom-0 sm:h-auto sm:w-[400px]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <div>
           <h2 className="text-3xl leading-none">Study buddy</h2>

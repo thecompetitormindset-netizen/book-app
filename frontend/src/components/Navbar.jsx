@@ -3,34 +3,32 @@ import { Link, NavLink } from "react-router-dom";
 import AccountButton from "./AccountButton";
 
 const LINKS = [
-  { to: "/", label: "Today", icon: "☀️", end: true },
-  { to: "/notebook", label: "Notebook", icon: "📓" },
-  { to: "/planner", label: "Planner", icon: "✅" },
-  { to: "/library", label: "Library", icon: "📚" },
-  { to: "/discover", label: "Free Books", icon: "🌍" },
-  { to: "/stats", label: "Stats", icon: "📈" },
+  { to: "/", label: "Today", end: true },
+  { to: "/notebook", label: "Notebook" },
+  { to: "/planner", label: "Planner" },
+  { to: "/library", label: "Library" },
+  { to: "/discover", label: "Free Books" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-1.5 text-lg py-1 px-2 rounded-lg transition-colors ${
-      isActive ? "text-white bg-[#fde68a] -rotate-1 shadow-sm" : "text-slate-400 hover:text-slate-200"
+    `py-1 px-2 border-b-2 transition-colors ${
+      isActive ? "text-white border-indigo-600" : "text-slate-400 border-transparent hover:text-slate-200"
     }`;
 
   return (
-    <nav className="border-b-2 border-dashed border-white/20 bg-paper/95 backdrop-blur-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
-        <Link to="/" className="flex items-center gap-2 text-white shrink-0 pl-8 sm:pl-6">
-          <span className="text-2xl" aria-hidden>📒</span>
-          <span className="font-hand font-bold text-3xl leading-none">My Notebook</span>
+    <nav className="border-b border-white/10 bg-paper/95 backdrop-blur-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
+        <Link to="/" className="text-white shrink-0">
+          <span className="font-hand text-3xl leading-none">My Notebook</span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1 ml-2">
+        <div className="hidden md:flex items-center gap-2 ml-4">
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
-              <span aria-hidden>{l.icon}</span>{l.label}
+              {l.label}
             </NavLink>
           ))}
         </div>
@@ -39,7 +37,7 @@ export default function Navbar() {
           <AccountButton />
           <button
             onClick={() => setOpen((o) => !o)}
-            className="lg:hidden text-slate-400 hover:text-white p-1.5"
+            className="md:hidden text-slate-400 hover:text-white p-1.5"
             aria-label="Menu"
             aria-expanded={open}
           >
@@ -51,10 +49,10 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-white/10 bg-paper px-6 pb-4 pt-2 grid grid-cols-2 gap-1">
+        <div className="md:hidden border-t border-white/10 bg-paper px-4 pb-3 pt-2 flex flex-col items-start gap-1">
           {LINKS.map((l) => (
             <NavLink key={l.to} to={l.to} end={l.end} className={linkClass} onClick={() => setOpen(false)}>
-              <span aria-hidden>{l.icon}</span>{l.label}
+              {l.label}
             </NavLink>
           ))}
         </div>

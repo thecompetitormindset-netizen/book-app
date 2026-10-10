@@ -34,24 +34,18 @@ export default function BackupCard() {
     }
   };
 
-  const row = (ok, text) => <li className="flex gap-2"><span>{ok ? "✅" : "⬜"}</span><span>{text}</span></li>;
-
+  const synced = !!auth;
   return (
-    <section className="bg-card border border-white/10 rounded-2xl p-5 md:col-span-2">
-      <h2 className="text-3xl text-white">🛟 Your notes are safe</h2>
-      <ul className="my-2 text-slate-300">
-        {row(true, `Saved on this device as you write (${notes.filter((n) => !n.deletedAt).length} pages, ${kb(storageBytes())})`)}
-        {row(!!auth, auth ? "Backed up to your Google account — open it on any device" : "Sign in with Google (top right) to back up to your account")}
-        {row(persisted, persisted ? "Browser won't clear your notes to free up space" : "Browser may clear data if the device runs out of space — keep a backup")}
-        {row(true, "Torn-out pages stay in the trash for 30 days")}
-      </ul>
-      <div className="flex flex-wrap gap-2 items-center">
-        <button onClick={download} className="bg-white/8 hover:bg-white/14 rounded-lg px-4 py-1.5">⬇️ Download backup</button>
-        <button onClick={() => fileRef.current.click()} className="bg-white/8 hover:bg-white/14 rounded-lg px-4 py-1.5">⬆️ Restore backup</button>
-        <input ref={fileRef} type="file" accept="application/json,.json" className="hidden"
-          onChange={(e) => { if (e.target.files[0]) restore(e.target.files[0]); e.target.value = ""; }} />
-        {msg && <span className="text-emerald-400">{msg}</span>}
-      </div>
+    <section className="md:col-span-2 text-sm text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1 pt-2">
+      <span>
+        ✓ {synced ? "Saved to your Google account" : "Saved on this device"} · {notes.filter((n) => !n.deletedAt).length} pages · {kb(storageBytes())}
+        {!synced && persisted === false && " · sign in or keep a backup so nothing is lost"}
+      </span>
+      <button onClick={download} className="hover:text-white underline-offset-2 hover:underline">Download backup</button>
+      <button onClick={() => fileRef.current.click()} className="hover:text-white underline-offset-2 hover:underline">Restore</button>
+      <input ref={fileRef} type="file" accept="application/json,.json" className="hidden"
+        onChange={(e) => { if (e.target.files[0]) restore(e.target.files[0]); e.target.value = ""; }} />
+      {msg && <span className="text-emerald-400">{msg}</span>}
     </section>
   );
 }
