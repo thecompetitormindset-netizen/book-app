@@ -7,6 +7,7 @@ import Today from "./pages/Today";
 import Landing from "./pages/Landing";
 import Notebook from "./pages/Notebook";
 import Planner from "./pages/Planner";
+import Prenursing from "./pages/Prenursing";
 import Discover from "./pages/Discover";
 import Library from "./pages/Library";
 import BookDetail from "./pages/BookDetail";
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/today" element={<Today />} />
           <Route path="/notebook" element={<Notebook />} />
           <Route path="/planner" element={<Planner />} />
+          <Route path="/prenursing" element={<Prenursing />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/library" element={<Library />} />
           <Route path="/books/:id" element={<BookDetail />} />

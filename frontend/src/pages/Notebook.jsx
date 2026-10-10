@@ -359,6 +359,7 @@ export default function Notebook() {
                 onUndoInk={() => actions.updateNote(note.id, { ink: (note.ink || []).slice(0, -1) })}
                 canUndoInk={!!note.ink?.length}
                 onAsk={() => setAsking(true)}
+                track={settings?.track}
                 moreMenu={(close) => (
                   <div className="flex flex-col items-start gap-0.5">
                     <button onClick={() => { close(); setPanel("remind"); }} className="w-full text-left px-2 py-1 rounded-md hover:bg-white/8">Remind me about this page</button>
@@ -412,6 +413,7 @@ export default function Notebook() {
           key={note.id}
           note={note}
           subject={subject}
+          track={settings?.track}
           onClose={() => setAsking(false)}
           onAddToPage={(answer) => {
             const block = `<div><br></div><div><b style="color: #2e7d32">📎 Filled in by study buddy</b></div>${markdownToHtml(answer, "#2e7d32")}`;

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { actions, goalProgress, usePersonal } from "../store/personal";
+import { actions, goalProgress, gpa, usePersonal } from "../store/personal";
 import { useAuth } from "../auth";
 import BackupCard from "../components/BackupCard";
+import TrackPicker from "../components/TrackPicker";
 import { friendlyWhen, todayISODate } from "../utils/dates";
 
 function Card({ title, to, linkLabel, children, className = "" }) {
@@ -31,7 +32,8 @@ function readingNow() {
 }
 
 export default function Today() {
-  const { reminders, todos, goals, notes, subjects } = usePersonal();
+  const { reminders, todos, goals, notes, subjects, settings, courses, applications } = usePersonal();
+  const track = settings?.track;
   const { auth } = useAuth();
   const [todo, setTodo] = useState("");
   const [books] = useState(readingNow);
@@ -50,12 +52,28 @@ export default function Today() {
       </p>
       <h1 className="text-5xl text-white mb-4">{greeting()}{firstName ? `, ${firstName}` : ""}</h1>
 
+      {!track && <TrackPicker />}
+
       <div className="flex flex-wrap items-center gap-4 mb-8">
         <Link to="/notebook" className="bg-indigo-600 hover:bg-indigo-500 rounded-xl px-5 py-2 text-lg">Open notebook</Link>
         <Link to="/planner" className="text-slate-400 hover:text-white">Add a reminder →</Link>
       </div>
 
       <div className="grid md:grid-cols-2 gap-5">
+        {track === "prenursing" && (() => {
+          const g = gpa(courses);
+          const next = applications.filter((a) => a.deadline && a.deadline >= today).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
+          return (
+            <Card title="Pre-nursing" to="/prenursing" linkLabel="Prereqs & applications" className="md:col-span-2">
+              <div className="flex flex-wrap gap-x-10 gap-y-2">
+                <p><span className="text-slate-500 text-sm block">Prerequisite GPA</span><span className="font-hand text-4xl">{g == null ? "—" : g.toFixed(2)}</span></p>
+                <p><span className="text-slate-500 text-sm block">Courses done</span><span className="font-hand text-4xl">{courses.filter((c) => c.status === "done").length}/{courses.length}</span></p>
+                <p><span className="text-slate-500 text-sm block">Next deadline</span>
+                  <span className="text-lg">{next ? `${next.school} · ${new Date(next.deadline + "T00:00").toLocaleDateString([], { month: "short", day: "numeric" })}` : "None yet"}</span></p>
+              </div>
+            </Card>
+          );
+        })()}
         <Card title="Coming up" to="/planner" linkLabel="Planner">
           {upcoming.length === 0 ? <p className="text-slate-500 italic">Nothing coming up.</p> : (
             <ul>
@@ -134,6 +152,11 @@ export default function Today() {
           </Card>
         )}
 
+        {track && (
+          <div className="md:col-span-2 flex items-center gap-2 text-sm text-slate-500">
+            <span>I’m in:</span> <TrackPicker current={track} compact />
+          </div>
+        )}
         <BackupCard />
       </div>
     </main>

@@ -13,7 +13,10 @@ const emptyState = () => ({
   reminders: [],
   todos: [],
   goals: [],
-  settings: { noteFont: "neat" },
+  courses: [],
+  applications: [],
+  // track: "prenursing" | "nursing" | null (not chosen yet)
+  settings: { noteFont: "neat", track: null, targetGpa: 3.5 },
   updatedAt: 0,
 });
 
@@ -25,7 +28,9 @@ function migrate(data) {
   const cutoff = new Date(Date.now() - TRASH_DAYS * 86400000).toISOString();
   return {
     ...data,
-    settings: { noteFont: "neat", ...data.settings },
+    settings: { noteFont: "neat", track: null, targetGpa: 3.5, ...data.settings },
+    courses: data.courses || [],
+    applications: data.applications || [],
     notes: data.notes
       .filter((n) => !n.deletedAt || n.deletedAt > cutoff)
       .map((n) => (n.html !== undefined ? n : { ...n, html: escapeHtml(n.body || "").replace(/\n/g, "<br>"), ink: [] })),
@@ -250,6 +255,93 @@ export const actions = {
     }));
   },
 };
+
+// ── Pre-nursing: prerequisites & applications ───────────────────────────────
+export const GRADE_POINTS = { "A": 4, "A-": 3.7, "B+": 3.3, "B": 3, "B-": 2.7, "C+": 2.3, "C": 2, "C-": 1.7, "D+": 1.3, "D": 1, "F": 0 };
+
+export const COMMON_PREREQS = [
+  ["Anatomy & Physiology I", 4], ["Anatomy & Physiology II", 4], ["Microbiology", 4],
+  ["General Chemistry", 4], ["Statistics", 3], ["Intro to Psychology", 3],
+  ["Lifespan Development", 3], ["Nutrition", 3], ["English Composition", 3],
+];
+
+export const APPLICATION_STATUSES = ["Planning", "Applied", "Interview", "Accepted", "Waitlisted", "Not accepted"];
+
+const DEFAULT_REQUIREMENTS = [
+  "Official transcripts", "TEAS / HESI A2 score", "Personal statement", "Recommendation letters",
+  "CPR / BLS certification", "Immunization records", "Background check", "Application fee",
+];
+
+/** Credit-weighted GPA of finished courses that have a grade. */
+export function gpa(courses) {
+  const graded = courses.filter((c) => c.status === "done" && c.grade in GRADE_POINTS && c.credits > 0);
+  const credits = graded.reduce((n, c) => n + Number(c.credits), 0);
+  if (!credits) return null;
+  return graded.reduce((n, c) => n + GRADE_POINTS[c.grade] * c.credits, 0) / credits;
+}
+
+Object.assign(actions, {
+  setTrack(track) {
+    update((s) => ({ ...s, settings: { ...s.settings, track } }));
+  },
+  addCourse(name, credits = 3) {
+    const c = { id: uid(), name: name.trim(), credits, grade: "", status: "planned" };
+    update((s) => ({ ...s, courses: [...s.courses, c] }));
+  },
+  addCommonPrereqs() {
+    update((s) => {
+      const have = new Set(s.courses.map((c) => c.name.toLowerCase()));
+      const add = COMMON_PREREQS.filter(([n]) => !have.has(n.toLowerCase()))
+        .map(([name, credits]) => ({ id: uid(), name, credits, grade: "", status: "planned" }));
+      return { ...s, courses: [...s.courses, ...add] };
+    });
+  },
+  updateCourse(id, patch) {
+    update((s) => ({ ...s, courses: patchIn(s.courses, id, patch) }));
+  },
+  deleteCourse(id) {
+    update((s) => ({ ...s, courses: s.courses.filter((c) => c.id !== id) }));
+  },
+
+  addApplication(school, deadline) {
+    const app = {
+      id: uid(), school: school.trim(), deadline: deadline || null, status: "Planning",
+      reqs: DEFAULT_REQUIREMENTS.map((text) => ({ id: uid(), text, done: false })),
+    };
+    // Reminders a week before and on the deadline day (9 AM), if still ahead.
+    const reminders = [];
+    if (deadline) {
+      for (const [days, label] of [[7, "1 week left"], [0, "due today"]]) {
+        const at = new Date(`${deadline}T09:00`);
+        at.setDate(at.getDate() - days);
+        if (at > new Date()) {
+          reminders.push({ id: uid(), text: `${app.school} application — ${label}`, at: at.toISOString(), subjectId: null, done: false, notified: false, createdAt: now() });
+        }
+      }
+    }
+    update((s) => ({ ...s, applications: [...s.applications, app], reminders: [...s.reminders, ...reminders] }));
+  },
+  updateApplication(id, patch) {
+    update((s) => ({ ...s, applications: patchIn(s.applications, id, patch) }));
+  },
+  toggleRequirement(appId, reqId) {
+    update((s) => ({
+      ...s,
+      applications: s.applications.map((a) =>
+        a.id === appId ? { ...a, reqs: a.reqs.map((r) => (r.id === reqId ? { ...r, done: !r.done } : r)) } : a
+      ),
+    }));
+  },
+  addRequirement(appId, text) {
+    update((s) => ({
+      ...s,
+      applications: s.applications.map((a) => (a.id === appId ? { ...a, reqs: [...a.reqs, { id: uid(), text: text.trim(), done: false }] } : a)),
+    }));
+  },
+  deleteApplication(id) {
+    update((s) => ({ ...s, applications: s.applications.filter((a) => a.id !== id) }));
+  },
+});
 
 export const goalProgress = (g) =>
   g.steps.length ? Math.round((g.steps.filter((s) => s.done).length / g.steps.length) * 100) : 0;

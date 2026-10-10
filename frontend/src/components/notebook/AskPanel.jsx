@@ -5,15 +5,16 @@ import { API_BASE } from "../../api";
 import { htmlToText, textHighlightedWith } from "../../utils/richtext";
 import { QUESTION_COLOR } from "./templates";
 
-const QUICK = [
+const quickActions = (track) => [
   { mode: "missing", label: "🧩 What did I miss?" },
   { mode: "confused", label: "❓ Explain my ❓ parts" },
   { mode: "simplify", label: "🐣 Explain simply" },
-  { mode: "quiz", label: "📝 Quiz me (NCLEX)" },
+  { mode: "quiz", label: track === "prenursing" ? "📝 Quiz me (exam / TEAS)" : "📝 Quiz me (NCLEX)" },
 ];
 
 /** Side panel: ask about this page and add the missing pieces to it. */
-export default function AskPanel({ note, subject, onAddToPage, onClose }) {
+export default function AskPanel({ note, subject, track, onAddToPage, onClose }) {
+  const QUICK = quickActions(track);
   const [chat, setChat] = useState([]); // { q, a, done }
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,7 +41,7 @@ export default function AskPanel({ note, subject, onAddToPage, onClose }) {
       const res = await fetch(`${API_BASE}/api/notes/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, question, subject: subject?.name || "", title: note.title, notes: htmlToText(note.html).slice(0, 30000) }),
+        body: JSON.stringify({ mode, question, track: track === "prenursing" ? "prenursing" : "nursing", subject: subject?.name || "", title: note.title, notes: htmlToText(note.html).slice(0, 30000) }),
       });
       if (!res.ok || !res.body || /text\/html/.test(res.headers.get("content-type") || "")) throw new Error();
       const reader = res.body.getReader();

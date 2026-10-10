@@ -9,14 +9,14 @@ from services.summarizer import stream_messages
 
 router = APIRouter(prefix="/api/notes")
 
-SYSTEM = """You are a friendly, accurate tutor for a nursing student. They took these notes
+SYSTEM = """You are a friendly, accurate tutor for {who}. They took these notes
 while listening to a lecture in their "{subject}" class. Notes may be messy, abbreviated
-(nursing shorthand like PRN, NPO, s/s, Tx, ↑, ↓) or incomplete.
+(shorthand like s/s, Tx, ↑, ↓) or incomplete.
 
 Rules:
-- Explain simply, like a kind clinical instructor. Short paragraphs and bullet points.
+- {style} Short paragraphs and bullet points.
 - Stay evidence-based. If something in the notes looks wrong, say so gently and correct it.
-- Highlight safety points (red flags, nursing priorities, patient teaching) when relevant.
+- {focus}
 - Never invent things the student must memorise as facts without saying how sure you are.
 - Keep answers under ~250 words unless asked for more.
 
@@ -26,6 +26,24 @@ THEIR NOTES:
 {notes}
 \"\"\""""
 
+TRACKS = {
+    "nursing": {
+        "who": "a nursing student",
+        "style": "Explain simply, like a kind clinical instructor.",
+        "focus": "Highlight safety points (red flags, nursing priorities, patient teaching) when relevant.",
+        "quiz": "Write 5 NCLEX-style multiple-choice questions from these notes, then the answers with one-line rationales.",
+    },
+    "prenursing": {
+        "who": "a pre-nursing student taking prerequisite science courses (A&P, microbiology, chemistry, statistics, psychology)",
+        "style": "Explain simply, like a patient science tutor: build from basics and use everyday analogies.",
+        "focus": "Point out what is commonly tested on prerequisite exams and the TEAS/HESI A2, and how it will matter later in nursing.",
+        "quiz": (
+            "Write 5 multiple-choice questions from these notes in the style of a college prerequisite exam / "
+            "TEAS science section, then the answers with one-line explanations."
+        ),
+    },
+}
+
 MODES = {
     "ask": "{question}",
     "missing": (
@@ -34,7 +52,7 @@ MODES = {
         "(no intro sentence, no repetition of what I already wrote)."
     ),
     "simplify": "Explain the main idea of these notes in very simple words, like I'm hearing it for the first time.",
-    "quiz": "Write 5 NCLEX-style multiple-choice questions from these notes, then the answers with one-line rationales.",
+    "quiz": "{quiz}",
     "confused": (
         "I marked these parts with ❓ because I didn't understand them in the lecture:\n{question}\n\n"
         "Explain each one simply, in the context of my notes."
@@ -46,6 +64,7 @@ class AskBody(BaseModel):
     mode: Literal["ask", "missing", "simplify", "quiz", "confused"] = "ask"
     question: str = Field("", max_length=4000)
     subject: str = Field("", max_length=200)
+    track: Literal["nursing", "prenursing"] = "nursing"
     title: str = Field("", max_length=300)
     notes: str = Field("", max_length=30000)
 
@@ -55,12 +74,15 @@ def ask_about_notes(body: AskBody):
     if body.mode in ("ask", "confused") and not body.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
+    t = TRACKS[body.track]
     messages = [
         {"role": "system", "content": SYSTEM.format(
-            subject=body.subject or "nursing", title=body.title or "(untitled)",
+            who=t["who"], style=t["style"], focus=t["focus"],
+            subject=body.subject or ("science" if body.track == "prenursing" else "nursing"),
+            title=body.title or "(untitled)",
             notes=body.notes.strip() or "(no notes yet)",
         )},
-        {"role": "user", "content": MODES[body.mode].format(question=body.question.strip())},
+        {"role": "user", "content": MODES[body.mode].format(question=body.question.strip(), quiz=t["quiz"])},
     ]
 
     def generate():
