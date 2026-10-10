@@ -1,5 +1,5 @@
 // Page templates for nursing school. Each inserts a little structure into the page.
-const H = (t, color = "#c62828") => `<div><b style="color: ${color}">${t}</b></div>`;
+const H = (t, color = "#b23b3b") => `<div><u style="color: ${color}">${t}</u></div>`;
 const blank = "<div><br></div>";
 const section = (...titles) => titles.map((t) => H(t) + blank).join("");
 

@@ -130,17 +130,26 @@ function SaveStatus() {
   usePersonal(); // re-render after each edit
   const { auth, syncState } = useAuth();
   if (lastSaveFailed()) return <span className="text-red-400">⚠️ Couldn't save on this device — download a backup from Today</span>;
-  if (!auth) return <span className="text-slate-500">✓ Saved on this device</span>;
+  if (!auth) return <span className="text-slate-500">Saved on this device</span>;
   if (syncState === "offline") return <span className="text-amber-400">✓ Saved here · will sync when online</span>;
   if (syncState === "syncing") return <span className="text-slate-500">Saving…</span>;
-  return <span className="text-emerald-400">☁️ Saved to your account</span>;
+  return <span className="text-slate-500">Saved to your account</span>;
+}
+
+/** Only speaks up when something is wrong. */
+function SaveWarning() {
+  usePersonal();
+  const { auth, syncState } = useAuth();
+  if (lastSaveFailed()) return <p className="text-sm text-red-400 mb-2">Couldn't save on this device — download a backup from Today.</p>;
+  if (auth && syncState === "offline") return <p className="text-sm text-slate-500 mb-2">Offline — saved here, will sync when you're back online.</p>;
+  return null;
 }
 
 function Trash({ notes, subjects, onClose }) {
   return (
     <div className="bg-card border border-white/10 rounded-xl p-4 mb-4">
       <div className="flex justify-between items-baseline mb-2">
-        <h2 className="text-3xl">🗑 Torn-out pages</h2>
+        <h2 className="text-2xl">Trash</h2>
         <button onClick={onClose} className="text-slate-500 hover:text-white">Close</button>
       </div>
       <p className="text-sm text-slate-500 mb-2">Pages stay here for 30 days, then they're gone for good.</p>
@@ -151,7 +160,7 @@ function Trash({ notes, subjects, onClose }) {
             <span className="flex-1 truncate">
               {n.title || "Untitled"} <span className="text-sm text-slate-500">· {subjects.find((s) => s.id === n.subjectId)?.name}</span>
             </span>
-            <button onClick={() => actions.restoreNote(n.id)} className="text-sm bg-white/8 hover:bg-white/14 rounded-lg px-3 py-1">↩ Restore</button>
+            <button onClick={() => actions.restoreNote(n.id)} className="text-sm bg-white/8 hover:bg-white/14 rounded-lg px-3 py-1">Restore</button>
             <button onClick={() => confirm("Delete this page forever?") && actions.deleteNoteForever(n.id)}
               className="text-sm text-slate-500 hover:text-red-400 px-2">Delete</button>
           </li>
@@ -184,6 +193,7 @@ export default function Notebook() {
   const [asking, setAsking] = useState(false);
   const [flash, setFlash] = useState("");
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mode, setMode] = useState("type");
   const [pen, setPen] = useState(PENS[0].color);
   const [marker, setMarker] = useState(HIGHLIGHTERS[0].color);
@@ -245,7 +255,7 @@ export default function Notebook() {
     if (!note) return;
     actions.trashNote(note.id);
     setIndex(Math.max(0, index - 1));
-    flashMsg("Page moved to trash — you can restore it");
+    flashMsg("Moved to trash");
   };
 
   const q = search.trim().toLowerCase();
@@ -255,53 +265,54 @@ export default function Notebook() {
   const tool = mode === "pen" ? { kind: "pen", color: pen } : mode === "marker" ? { kind: "marker", color: marker } : mode === "eraser" ? { kind: "eraser" } : null;
 
   return (
-    <main className={`max-w-5xl px-4 sm:px-6 py-5 pl-12 sm:pl-14 ${asking ? "mx-auto sm:ml-0 sm:mr-[400px] 2xl:ml-auto" : "mx-auto"}`}>
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
-        <h1 className="text-5xl text-white leading-none">Class Notebook</h1>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Search all notes…"
-          className="bg-card border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-indigo-500 sm:w-64"
-        />
-      </div>
-
-      {/* Classes */}
-      <div className="flex gap-2 mb-3 items-center overflow-x-auto pb-1 -mx-1 px-1">
-        {subjects.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => pickSubject(s.id)}
-            className={`px-4 py-1 rounded-lg text-lg border-2 whitespace-nowrap transition-transform ${
-              s.id === subjectId ? "-rotate-1 shadow-md border-white/40" : "border-transparent hover:-rotate-1"
-            }`}
-            style={{ backgroundColor: s.color + (s.id === subjectId ? "" : "88") }}
-          >
-            {s.name}
-            <span className="ml-1.5 text-sm opacity-70">{live.filter((n) => n.subjectId === s.id).length}</span>
-          </button>
-        ))}
-        {newClass === null ? (
-          <button onClick={() => setNewClass("")} className="px-3 py-1 rounded-lg border-2 border-dashed border-white/20 text-slate-400 hover:text-white whitespace-nowrap">
-            + Add class
-          </button>
+    <main className={`max-w-5xl px-4 sm:px-6 py-5 ${asking ? "mx-auto sm:ml-0 sm:mr-[400px] 2xl:ml-auto" : "mx-auto"}`}>
+      {/* Classes · new page · search */}
+      <div className="flex items-center gap-2 mb-3 border-b border-white/10">
+        <div className="flex gap-1 overflow-x-auto flex-1 min-w-0" role="tablist" aria-label="Classes">
+          {subjects.map((s) => (
+            <button
+              key={s.id}
+              role="tab"
+              aria-selected={s.id === subjectId}
+              onClick={() => pickSubject(s.id)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 whitespace-nowrap border-b-2 -mb-px ${
+                s.id === subjectId ? "text-white" : "text-slate-500 border-transparent hover:text-slate-300"
+              }`}
+              style={s.id === subjectId ? { borderColor: s.color } : undefined}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+              {s.name}
+            </button>
+          ))}
+          {newClass === null ? (
+            <button onClick={() => setNewClass("")} title="Add a class" aria-label="Add a class"
+              className="px-2 py-1.5 text-slate-500 hover:text-white">+</button>
+          ) : (
+            <form
+              className="flex gap-1 py-1"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newClass.trim()) return setNewClass(null);
+                const s = actions.addSubject(newClass);
+                setNewClass(null);
+                pickSubject(s.id);
+              }}
+            >
+              <input autoFocus value={newClass} onChange={(e) => setNewClass(e.target.value)} placeholder="Class name"
+                onBlur={() => !newClass.trim() && setNewClass(null)}
+                className="bg-white/6 rounded-md px-2 py-0.5 outline-none w-36" />
+            </form>
+          )}
+        </div>
+        {searchOpen || search ? (
+          <input autoFocus value={search} onChange={(e) => setSearch(e.target.value)} onBlur={() => !search && setSearchOpen(false)}
+            placeholder="Search notes…" className="bg-white/6 rounded-md px-2 py-1 outline-none w-36 sm:w-48 text-sm" />
         ) : (
-          <form
-            className="flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!newClass.trim()) return setNewClass(null);
-              const s = actions.addSubject(newClass);
-              setNewClass(null);
-              pickSubject(s.id);
-            }}
-          >
-            <input autoFocus value={newClass} onChange={(e) => setNewClass(e.target.value)} placeholder="e.g. Pharmacology"
-              onBlur={() => !newClass.trim() && setNewClass(null)}
-              className="bg-card border border-white/10 rounded-lg px-3 py-1 outline-none w-44" />
-            <button className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-3">Add</button>
-          </form>
+          <button onClick={() => setSearchOpen(true)} title="Search notes" aria-label="Search notes" className="px-2 py-1 text-slate-500 hover:text-white">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" strokeLinecap="round" /></svg>
+          </button>
         )}
+        <button onClick={newPage} className="shrink-0 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white">+ Page</button>
       </div>
 
       {q ? (
@@ -325,29 +336,16 @@ export default function Notebook() {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2 mb-2 text-base">
-            <button onClick={newPage} className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-1">✏️ New page</button>
-            {note && (
-              <>
-                <button onClick={() => setPanel(panel === "remind" ? null : "remind")} className="bg-white/8 hover:bg-white/14 rounded-lg px-3 py-1">⏰ Remind me</button>
-                <button onClick={tearOut} className="bg-white/8 hover:bg-white/14 rounded-lg px-3 py-1">🗑 Tear out</button>
-              </>
-            )}
-            {trashed.length > 0 && (
-              <button onClick={() => setPanel(panel === "trash" ? null : "trash")} className="text-slate-500 hover:text-white px-2">Trash ({trashed.length})</button>
-            )}
-            <span className="ml-auto text-sm">{flash ? <span className="text-emerald-400">{flash}</span> : <SaveStatus />}</span>
-          </div>
-
+          <SaveWarning />
           {panel === "remind" && note && (
             <div className="mb-3">
-              <RemindForm note={note} subject={subject} onDone={(ok) => { setPanel(null); if (ok) flashMsg("Reminder set ✓"); }} />
+              <RemindForm note={note} subject={subject} onDone={(ok) => { setPanel(null); if (ok) flashMsg("Reminder set"); }} />
             </div>
           )}
           {panel === "trash" && <Trash notes={trashed} subjects={subjects} onClose={() => setPanel(null)} />}
 
           {note && (
-            <div className="sticky top-16 z-20 bg-paper/95 backdrop-blur-sm rounded-xl mb-2">
+            <div className="sticky top-14 z-20 bg-paper/95 backdrop-blur-sm mb-2 relative">
               <NoteToolbar
                 mode={mode} setMode={setMode} pen={pen} setPen={setPen} marker={marker} setMarker={setMarker}
                 onExec={exec}
@@ -361,18 +359,34 @@ export default function Notebook() {
                 onUndoInk={() => actions.updateNote(note.id, { ink: (note.ink || []).slice(0, -1) })}
                 canUndoInk={!!note.ink?.length}
                 onAsk={() => setAsking(true)}
-                font={font}
-                setFont={(f) => actions.setSetting("noteFont", f)}
+                moreMenu={(close) => (
+                  <div className="flex flex-col items-start gap-0.5">
+                    <button onClick={() => { close(); setPanel("remind"); }} className="w-full text-left px-2 py-1 rounded-md hover:bg-white/8">Remind me about this page</button>
+                    <button onClick={() => { close(); tearOut(); }} className="w-full text-left px-2 py-1 rounded-md hover:bg-white/8">Tear out this page</button>
+                    {trashed.length > 0 && (
+                      <button onClick={() => { close(); setPanel("trash"); }} className="w-full text-left px-2 py-1 rounded-md hover:bg-white/8">Trash ({trashed.length})</button>
+                    )}
+                    <p className="text-xs text-slate-500 mt-2 mb-0.5 px-2">Handwriting</p>
+                    <div className="flex gap-1 px-1">
+                      {[["neat", "Neat"], ["casual", "Script"], ["print", "Print"]].map(([id, name]) => (
+                        <button key={id} onClick={() => actions.setSetting("noteFont", id)}
+                          className={`px-2 py-0.5 rounded-md note-font-${id} !text-base ${font === id ? "bg-white/12" : "hover:bg-white/8"}`}>{name}</button>
+                      ))}
+                    </div>
+                    <p className="text-xs mt-3 px-2"><SaveStatus /></p>
+                  </div>
+                )}
               />
+              {flash && <p className="absolute right-0 -bottom-6 text-sm text-emerald-400">{flash}</p>}
             </div>
           )}
 
           {pages.length === 0 ? (
             <div className="book mx-auto" style={{ height: "min(60vh, 520px)", maxWidth: PAGE_W * MAX_ZOOM }}>
               <div className="book-sheet paper-page flex flex-col items-center justify-center text-center p-8">
-                <p className="font-hand text-4xl mb-2">A fresh {subject?.name} notebook</p>
-                <p className="text-slate-400 mb-6">Start a page for today's class.</p>
-                <button onClick={newPage} className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-6 py-2 text-xl">✏️ Start writing</button>
+                <p className="font-hand text-4xl mb-2">{subject?.name}</p>
+                <p className="text-slate-500 mb-6">No pages yet.</p>
+                <button onClick={newPage} className="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-5 py-1.5">Start writing</button>
               </div>
             </div>
           ) : (
@@ -402,7 +416,7 @@ export default function Notebook() {
           onAddToPage={(answer) => {
             const block = `<div><br></div><div><b style="color: #2e7d32">📎 Filled in by study buddy</b></div>${markdownToHtml(answer, "#2e7d32")}`;
             setHtml((editorRef.current?.innerHTML ?? note.html) + block);
-            flashMsg("Added to your page ✓");
+            flashMsg("Added to page");
           }}
         />
       )}

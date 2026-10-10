@@ -39,7 +39,6 @@ const SITES = [
 ];
 
 const TAGS = ["All", ...Array.from(new Set(SITES.flatMap((s) => s.tags)))];
-const ROTATIONS = ["-rotate-1", "rotate-1", "rotate-0", "-rotate-[0.5deg]", "rotate-[0.6deg]"];
 
 export default function Discover() {
   const [tag, setTag] = useState("All");
@@ -47,8 +46,8 @@ export default function Discover() {
   const shown = SITES.filter((s) => tag === "All" || s.tags.includes(tag));
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pl-12 sm:pl-14">
-      <h1 className="text-5xl text-white">Best free book websites</h1>
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <h1 className="text-4xl text-white">Free book websites</h1>
       <p className="text-slate-400 mb-5">Read, borrow and listen for free — legally. Great for school too.</p>
 
       <form
@@ -73,11 +72,11 @@ export default function Discover() {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {shown.map((s, i) => (
+        {shown.map((s) => (
           <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
-            className={`block bg-card border border-white/10 rounded-lg p-5 hover:-translate-y-1 transition-transform ${ROTATIONS[i % ROTATIONS.length]}`}>
-            <h2 className="text-3xl leading-tight text-white">{s.name} ↗</h2>
-            <p className="text-slate-300 my-2">{s.about}</p>
+            className={`block bg-card border border-white/10 rounded-lg p-5 hover:border-white/20 transition-colors`}>
+            <h2 className="text-2xl leading-tight text-white">{s.name}</h2>
+            <p className="text-slate-400 text-sm my-2">{s.about}</p>
             <div className="flex flex-wrap gap-1.5">
               {s.tags.map((t) => <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-white/8 text-slate-400">{t}</span>)}
             </div>

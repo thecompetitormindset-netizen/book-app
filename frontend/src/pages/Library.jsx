@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import BookCard from "../components/BookCard";
 import UploadModal from "../components/UploadModal";
 import FolderImportModal from "../components/FolderImportModal";
@@ -134,9 +135,9 @@ export default function Library() {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 pt-10 pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">My Library</h1>
+          <h1 className="text-4xl text-white">Library</h1>
           <p className="text-slate-400 mt-1 text-sm">
-            {books.length} book{books.length !== 1 ? "s" : ""}
+            {books.length} book{books.length !== 1 ? "s" : ""} · <Link to="/stats" className="hover:text-white underline-offset-2 hover:underline">reading stats</Link>
             {stats?.error > 0 && (
               <span className="ml-2 text-red-400">&bull; {stats.error} errors</span>
             )}
@@ -165,7 +166,7 @@ export default function Library() {
       </div>
 
       {offline && (
-        <div className="sticky-note !rotate-0 rounded-sm mx-6 mt-2 px-4 py-3">
+        <div className="mx-6 mt-2 text-sm text-slate-400">
           📡 Can't reach the book server right now{books.length ? " — showing your saved list." : "."} Your notebook and planner still work.
         </div>
       )}
