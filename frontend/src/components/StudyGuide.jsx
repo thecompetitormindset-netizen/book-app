@@ -41,7 +41,7 @@ function Flashcard({ card, index, total }) {
         >
           {/* Front */}
           <div
-            className="absolute inset-0 rounded-2xl bg-[#22223a] border border-white/10 p-6 flex flex-col justify-between"
+            className="absolute inset-0 rounded-2xl bg-card border border-white/10 p-6 flex flex-col justify-between"
             style={{ backfaceVisibility: "hidden" }}
           >
             {card.category && (
@@ -89,7 +89,7 @@ function ConceptCard({ concept }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-[#1e1e2e] border border-white/8 rounded-2xl overflow-hidden hover:border-white/16 transition-colors">
+    <div className="bg-card border border-white/8 rounded-2xl overflow-hidden hover:border-white/16 transition-colors">
       <div className="flex gap-4 p-5">
         {concept.wiki_image && (
           <img
@@ -219,11 +219,11 @@ function Glossary({ items }) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search terms…"
-        className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+        className="w-full bg-card border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
       />
       <div className="space-y-2">
         {filtered.map((g, i) => (
-          <div key={i} className="flex gap-4 bg-[#1a1a24] border border-white/8 rounded-xl px-4 py-3">
+          <div key={i} className="flex gap-4 bg-card border border-white/8 rounded-xl px-4 py-3">
             <span className="text-indigo-300 font-semibold text-sm min-w-[180px] shrink-0">{g.term}</span>
             <span className="text-slate-400 text-sm leading-relaxed">{g.definition}</span>
           </div>
@@ -336,7 +336,7 @@ export default function StudyGuide({ bookId, bookTitle, studyStatus: initialStat
   // ── Not yet generated ─────────────────────────────────────────────────────
   if (status === "none" || status === "error") {
     return (
-      <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-8 text-center">
+      <div className="bg-card border border-white/10 rounded-2xl p-8 text-center">
         <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -367,7 +367,7 @@ export default function StudyGuide({ bookId, bookTitle, studyStatus: initialStat
   // ── Processing ────────────────────────────────────────────────────────────
   if (status === "processing") {
     return (
-      <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-10 text-center">
+      <div className="bg-card border border-white/10 rounded-2xl p-10 text-center">
         <svg className="w-10 h-10 animate-spin text-indigo-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -397,7 +397,7 @@ export default function StudyGuide({ bookId, bookTitle, studyStatus: initialStat
   };
 
   return (
-    <div className="bg-[#1a1a24] border border-white/10 rounded-2xl overflow-hidden">
+    <div className="bg-card border border-white/10 rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
         <div className="flex items-center gap-2">

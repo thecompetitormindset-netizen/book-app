@@ -19,7 +19,7 @@ function ProcessingBanner({ stats }) {
   if (!stats || stats.pending === 0) return null;
   const pct = stats.total ? Math.round(stats.done / stats.total * 100) : 0;
   return (
-    <div className="mx-6 mb-0 mt-2 bg-[#1a1a2e] border border-indigo-500/20 rounded-2xl px-5 py-3 flex items-center gap-4">
+    <div className="mx-6 mb-0 mt-2 bg-card border border-indigo-500/20 rounded-2xl px-5 py-3 flex items-center gap-4">
       <svg className="w-4 h-4 text-indigo-400 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -174,13 +174,13 @@ export default function Library() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by title or author…"
-              className="w-full bg-[#1a1a24] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+              className="w-full bg-card border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors text-sm"
             />
           </div>
           <select
             value={sort}
             onChange={e => setSort(e.target.value)}
-            className="bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="bg-card border border-white/10 rounded-xl px-4 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
             {SORT_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>

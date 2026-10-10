@@ -1,5 +1,6 @@
 import os
 import random
+from datetime import datetime
 import shutil
 from pathlib import Path
 
@@ -22,6 +23,8 @@ load_dotenv()
 
 from database import Base, engine, get_db
 from models import Book
+from auth import router as auth_router
+from notes_ai import router as notes_ai_router
 from services.book_info import fetch_book_info
 from services.parser import extract_text
 from services.storage import is_cloud, upload, upload_file, download_to_temp, delete as storage_delete, public_url as storage_public_url
@@ -73,6 +76,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
+app.include_router(notes_ai_router)
 
 app.mount("/thumbnails", StaticFiles(directory=str(THUMB_DIR)), name="thumbnails")
 

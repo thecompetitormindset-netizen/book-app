@@ -127,10 +127,15 @@ def stream_chat(title: str, author: str, summary: str, book_text: str, question:
         {"role": "user", "content": question},
     ]
 
+    yield from stream_messages(messages, max_tokens=1500)
+
+
+def stream_messages(messages: list[dict], max_tokens: int = 1500):
+    """Stream a chat completion token by token (Groq if configured, else Ollama)."""
     client = _groq_client()
     if client:
         stream = client.chat.completions.create(
-            model=GROQ_MODEL, messages=messages, max_tokens=1500, stream=True,
+            model=GROQ_MODEL, messages=messages, max_tokens=max_tokens, stream=True,
         )
         for chunk in stream:
             token = chunk.choices[0].delta.content or ""

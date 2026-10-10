@@ -1,5 +1,5 @@
-const CACHE = 'booksummary-v1';
-const STATIC = ['/', '/stats'];
+const CACHE = 'booksummary-v2';
+const STATIC = ['/', '/notebook', '/planner', '/library', '/stats'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -43,6 +43,17 @@ self.addEventListener('fetch', e => {
         }
         return resp;
       });
+    })
+  );
+});
+
+// Clicking a reminder notification focuses (or opens) the app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) if ('focus' in c) return c.focus();
+      return self.clients.openWindow('/planner');
     })
   );
 });

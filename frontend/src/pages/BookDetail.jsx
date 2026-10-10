@@ -6,6 +6,51 @@ import { getBook, regenerateSummary, updateMeta } from "../api";
 import BookChat from "../components/BookChat";
 import StudyGuide from "../components/StudyGuide";
 import StarRating from "../components/StarRating";
+import PageFlip from "../components/PageFlip";
+
+const PAGE_CHARS = 1100;
+
+/** Split a markdown summary into book pages: by heading, then by paragraph. */
+function paginate(markdown) {
+  const sections = markdown.split(/\n(?=#{1,3} )/).map((s) => s.trim()).filter(Boolean);
+  const pages = [];
+  for (const section of sections) {
+    let page = "";
+    for (const para of section.split(/\n{2,}/)) {
+      if (page && page.length + para.length > PAGE_CHARS) {
+        pages.push(page);
+        page = "";
+      }
+      page += (page ? "\n\n" : "") + para;
+    }
+    if (page) pages.push(page);
+  }
+  return pages;
+}
+
+function SummaryBook({ summary, title }) {
+  const pages = paginate(summary);
+  const [index, setIndex] = useState(0);
+  return (
+    <PageFlip
+      count={pages.length}
+      index={Math.min(index, pages.length - 1)}
+      onChange={setIndex}
+      height="min(70vh, 620px)"
+      renderPage={(i) => (
+        <div className="h-full overflow-y-auto pl-[66px] pr-6 pt-3 pb-10">
+          {i === 0 && <p className="font-hand text-xl text-slate-500 -mb-1">{title}</p>}
+          <div className="prose max-w-none text-[19px] leading-[32px] text-white
+            prose-headings:font-hand prose-headings:text-white prose-headings:my-1 prose-h1:text-4xl prose-h2:text-4xl prose-h3:text-3xl
+            prose-p:my-0 prose-p:leading-[32px] prose-li:my-0 prose-ul:my-0 prose-ol:my-0
+            prose-strong:text-white prose-a:text-indigo-400">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{pages[i]}</ReactMarkdown>
+          </div>
+        </div>
+      )}
+    />
+  );
+}
 
 const API = typeof __API_URL__ !== "undefined" ? __API_URL__ : "";
 
@@ -62,6 +107,7 @@ export default function BookDetail() {
   const [notes, setNotes]         = useState("");
   const [notesSaving, setNotesSaving] = useState(false);
   const [notesDirty, setNotesDirty]   = useState(false);
+  const [bookView, setBookView]       = useState(true);
 
   const fetchBook = async () => {
     try {
@@ -129,14 +175,14 @@ export default function BookDetail() {
     return (
       <div className="text-center py-24">
         <p className="text-slate-400 mb-4">Book not found.</p>
-        <Link to="/" className="text-indigo-400 hover:underline">Go back to library</Link>
+        <Link to="/library" className="text-indigo-400 hover:underline">Go back to library</Link>
       </div>
     );
   }
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white text-sm mb-8 transition-colors">
+      <Link to="/library" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white text-sm mb-8 transition-colors">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -171,7 +217,7 @@ export default function BookDetail() {
       </div>
 
       {/* ── Reading status + Rating + Notes ── */}
-      <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-5 mb-4 flex flex-col gap-4">
+      <div className="bg-card border border-white/10 rounded-2xl p-5 mb-4 flex flex-col gap-4">
         {/* Status */}
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-2">Reading Status</p>
@@ -217,7 +263,7 @@ export default function BookDetail() {
             onChange={e => { setNotes(e.target.value); setNotesDirty(true); }}
             placeholder="Write your thoughts, highlights, or anything you want to remember…"
             rows={3}
-            className="w-full bg-[#0f0f13] border border-white/10 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full bg-paper border border-white/10 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-indigo-500 transition-colors"
           />
           {notesDirty && (
             <button
@@ -233,16 +279,24 @@ export default function BookDetail() {
 
       {/* Publisher description */}
       {book.book_description && (
-        <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-6 mb-4">
+        <div className="bg-card border border-white/10 rounded-2xl p-6 mb-4">
           <h2 className="text-white font-semibold text-lg mb-3">About this book</h2>
           <p className="text-slate-300 leading-relaxed text-sm">{book.book_description}</p>
         </div>
       )}
 
       {/* AI Summary section */}
-      <div className="bg-[#1a1a24] border border-white/10 rounded-2xl p-6">
+      <div className="bg-card border border-white/10 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-white font-semibold text-lg">Summary</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-white font-semibold text-3xl">Summary</h2>
+            {book.summary_status === "done" && book.summary && (
+              <div className="flex rounded-lg overflow-hidden border border-white/10 text-sm">
+                <button onClick={() => setBookView(true)} className={`px-2.5 py-0.5 ${bookView ? "bg-indigo-600" : "hover:bg-white/8"}`}>📖 Book</button>
+                <button onClick={() => setBookView(false)} className={`px-2.5 py-0.5 ${!bookView ? "bg-indigo-600" : "hover:bg-white/8"}`}>📄 Page</button>
+              </div>
+            )}
+          </div>
           {(book.summary_status === "done" || book.summary_status === "error") && (
             <button
               onClick={handleRegenerate}
@@ -275,8 +329,12 @@ export default function BookDetail() {
           </div>
         )}
 
-        {book.summary_status === "done" && book.summary && (
-          <div className="prose prose-invert prose-sm max-w-none
+        {book.summary_status === "done" && book.summary && bookView && (
+          <SummaryBook summary={book.summary} title={book.title} />
+        )}
+
+        {book.summary_status === "done" && book.summary && !bookView && (
+          <div className="prose prose-sm max-w-none
             prose-headings:text-slate-100 prose-headings:font-semibold
             prose-p:text-slate-300 prose-p:leading-relaxed
             prose-li:text-slate-300

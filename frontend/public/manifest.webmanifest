@@ -1,11 +1,11 @@
 {
-  "name": "BookSummary",
-  "short_name": "BookSummary",
-  "description": "AI-powered book summaries, study guides & flashcards",
+  "name": "My Notebook — notes, reminders & books",
+  "short_name": "My Notebook",
+  "description": "Class notes, reminders, to-dos, goals and book summaries",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f13",
-  "theme_color": "#4f46e5",
+  "background_color": "#fbf0b2",
+  "theme_color": "#fbf0b2",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -23,8 +23,18 @@
   ],
   "shortcuts": [
     {
+      "name": "Notebook",
+      "url": "/notebook",
+      "description": "Take class notes"
+    },
+    {
+      "name": "Planner",
+      "url": "/planner",
+      "description": "Reminders, to-dos and goals"
+    },
+    {
       "name": "Library",
-      "url": "/",
+      "url": "/library",
       "description": "Browse your books"
     },
     {

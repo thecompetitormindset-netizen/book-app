@@ -2,13 +2,153 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #0f0f13;
-  color: #e2e8f0;
-  font-family: system-ui, -apple-system, sans-serif;
-  margin: 0;
+:root {
+  --ink: #1f2a44;
+  --paper: #fbf0b2;
+  --paper-light: #fff8cf;
+  --rule: rgba(66, 110, 180, 0.22);
+  --margin: rgba(220, 80, 80, 0.45);
+  --line: 32px;
 }
 
-#root {
-  min-height: 100vh;
+body {
+  margin: 0;
+  color: var(--ink);
+  /* thin, neat handwriting for the whole app */
+  font-family: Kalam, "Patrick Hand", cursive;
+  font-weight: 300;
+  font-size: 17px;
+  background-color: var(--paper);
+  /* ruled yellow legal-pad paper */
+  background-image:
+    linear-gradient(90deg, transparent 39px, var(--margin) 39px, var(--margin) 41px, transparent 41px),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
+  background-attachment: local;
+}
+
+h1, h2, h3 {
+  font-family: Caveat, "Patrick Hand", cursive;
+  font-weight: 500;
+  /* Caveat runs small; keep headings the size Tailwind asked for */
+  font-size-adjust: 0.52;
+}
+
+#root { min-height: 100vh; }
+
+::selection { background: #fde68a; }
+
+/* A sheet of paper resting on the pad */
+.bg-card {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 6px 16px -8px rgba(80, 60, 0, 0.35);
+}
+
+/* ── Notebook page (ruled, with a red margin) ─────────────────────────── */
+.paper-page {
+  background-color: var(--paper-light);
+  background-image:
+    linear-gradient(90deg, transparent 52px, var(--margin) 52px, var(--margin) 54px, transparent 54px),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
+  background-position: 0 8px;
+  line-height: var(--line);
+}
+/* Text area with its own lines so they scroll along with the writing */
+.ruled-text {
+  line-height: var(--line);
+  font-size: 19px;
+  background-color: var(--paper-light);
+  background-image:
+    linear-gradient(90deg, transparent 52px, var(--margin) 52px, var(--margin) 54px, transparent 54px),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px) var(--line));
+  background-attachment: local;
+  padding: 0 20px 0 66px;
+  border: 0;
+  outline: none;
+  resize: none;
+  color: var(--ink);
+}
+.ruled-text::placeholder { color: #9a9a8a; }
+b, strong { font-weight: 700; }
+
+/* Handwriting styles for notes (all sit on the 32px ruled lines) */
+.note-font-neat   { font-family: Kalam, cursive; font-weight: 300; font-size: 19px; }
+.note-font-casual { font-family: Caveat, cursive; font-weight: 400; font-size: 26px; }
+.note-font-print  { font-family: "Patrick Hand", cursive; font-weight: 400; font-size: 20px; }
+
+.note-editor { outline: none; padding-top: 0; white-space: pre-wrap; word-break: break-word; }
+.note-editor:empty::before { content: attr(data-placeholder); color: #9a9a8a; pointer-events: none; }
+.note-editor ul { list-style: disc; padding-left: 1.4em; }
+.note-editor ol { list-style: decimal; padding-left: 1.4em; }
+.note-editor span[style*="background-color"] { border-radius: 3px; padding: 0 1px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+
+/* ── Page turning ─────────────────────────────────────────────────────── */
+.book {
+  position: relative;
+  perspective: 2400px;
+}
+.book-sheet, .book-leaf {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 14px 14px 4px;
+}
+.book-sheet {
+  box-shadow: -6px 0 0 -2px #e9dd98, -12px 0 0 -4px #dccf86, 0 18px 30px -18px rgba(70, 50, 0, 0.55);
+}
+.book-leaf {
+  z-index: 3;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+.book-leaf.next { animation-name: leaf-next; }
+.book-leaf.prev { animation-name: leaf-prev; }
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.leaf-face::after {
+  /* shading that deepens as the page lifts */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,0,0,0.12), transparent 30%, transparent 70%, rgba(0,0,0,0.18));
+}
+.leaf-back {
+  transform: rotateY(180deg);
+  background: #f3e7a6;
+}
+@keyframes leaf-next { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
+@keyframes leaf-prev { from { transform: rotateY(-180deg); } to { transform: rotateY(0deg); } }
+
+/* folded corner you can click to turn */
+.dog-ear {
+  position: absolute;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
+  z-index: 4;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  transition: width 0.15s, height 0.15s;
+}
+.dog-ear.right { right: 0; background: linear-gradient(315deg, var(--paper) 50%, #e8da8f 50%, #f6eab0 100%); border-bottom-right-radius: 14px; }
+.dog-ear.left  { left: 0;  background: linear-gradient(45deg,  var(--paper) 50%, #e8da8f 50%, #f6eab0 100%); border-bottom-left-radius: 4px; }
+.dog-ear:hover, .dog-ear:focus-visible { width: 56px; height: 56px; }
+
+/* sticky-note toast */
+.sticky-note {
+  background: #fff3a3;
+  box-shadow: 0 10px 22px -10px rgba(60, 40, 0, 0.6);
+  transform: rotate(-1.5deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-leaf { animation: none; }
 }
