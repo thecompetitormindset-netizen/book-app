@@ -70,7 +70,7 @@ export default function BookCard({ book, onDelete }) {
     : null;
 
   return (
-    <div className="group bg-[#1a1a24] border border-white/8 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-200 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-0.5 flex flex-col">
+    <div className="group bg-card border border-white/8 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-200 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-0.5 flex flex-col">
       <div className="p-4 flex flex-col flex-1">
         <BookCover book={book} />
 

@@ -58,8 +58,8 @@ function DonutChart({ segments }) {
           offset += pct;
           return el;
         })}
-        <text x={cx} y={cy - 6} textAnchor="middle" fill="#f1f5f9" fontSize="20" fontWeight="700">{total}</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fill="#64748b" fontSize="10">books</text>
+        <text x={cx} y={cy - 6} textAnchor="middle" fill="#1f2a44" fontSize="20" fontWeight="700">{total}</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill="#4b5573" fontSize="10">books</text>
       </svg>
       <div className="space-y-2 flex-1">
         {segments.map((seg, i) => (
@@ -85,7 +85,7 @@ function StatCard({ icon, label, value, sub, color = "indigo" }) {
     violet: "bg-violet-500/10 text-violet-400",
   };
   return (
-    <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-5">
+    <div className="bg-card border border-white/8 rounded-2xl p-5">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 text-lg ${colors[color]}`}>
         {icon}
       </div>
@@ -100,7 +100,7 @@ function StatCard({ icon, label, value, sub, color = "indigo" }) {
 function RatedBook({ book }) {
   const stars = "★".repeat(book.rating) + "☆".repeat(5 - book.rating);
   return (
-    <Link to={`/books/${book.id}`} className="flex items-center gap-3 p-3 bg-[#1a1a24] border border-white/8 rounded-xl hover:border-white/20 transition-colors">
+    <Link to={`/books/${book.id}`} className="flex items-center gap-3 p-3 bg-card border border-white/8 rounded-xl hover:border-white/20 transition-colors">
       {book.thumbnail ? (
         <img
           src={`${API}/thumbnails/${encodeURIComponent(book.thumbnail)}`}
@@ -164,7 +164,7 @@ export default function Stats() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-10">
       <div className="flex items-center gap-4 mb-8">
-        <Link to="/" className="text-slate-400 hover:text-white transition-colors">
+        <Link to="/library" className="text-slate-400 hover:text-white transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
@@ -183,13 +183,13 @@ export default function Stats() {
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Reading status donut */}
-        <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-6">
+        <div className="bg-card border border-white/8 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-5">Reading Status</h2>
           <DonutChart segments={donutSegments} />
         </div>
 
         {/* Top genres */}
-        <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-6">
+        <div className="bg-card border border-white/8 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-5">Top Genres</h2>
           <BarChart data={genreData} color="#4f46e5" labelKey="label" valueKey="count" />
         </div>
@@ -197,7 +197,7 @@ export default function Stats() {
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Monthly finished */}
-        <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-6">
+        <div className="bg-card border border-white/8 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-5">Books Finished (last 6 months)</h2>
           {monthlyData.length > 0
             ? <BarChart data={monthlyData} color="#10b981" labelKey="label" valueKey="count" />
@@ -206,7 +206,7 @@ export default function Stats() {
         </div>
 
         {/* Processing progress */}
-        <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-6">
+        <div className="bg-card border border-white/8 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-5">AI Processing</h2>
           <div className="space-y-4">
             {[
@@ -240,7 +240,7 @@ export default function Stats() {
 
       {/* Top rated */}
       {(stats.top_rated || []).length > 0 && (
-        <div className="bg-[#1a1a24] border border-white/8 rounded-2xl p-6">
+        <div className="bg-card border border-white/8 rounded-2xl p-6">
           <h2 className="text-white font-semibold mb-4">Top Rated Books</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {stats.top_rated.map(book => <RatedBook key={book.id} book={book} />)}

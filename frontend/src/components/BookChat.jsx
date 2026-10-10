@@ -32,7 +32,7 @@ function Message({ msg }) {
         {isUser ? (
           msg.content
         ) : (
-          <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-headings:text-slate-100 prose-li:text-slate-300">
+          <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:text-slate-100 prose-li:text-slate-300">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {msg.content || "…"}
             </ReactMarkdown>
@@ -127,7 +127,7 @@ export default function BookChat({ bookId, bookTitle, summaryReady }) {
   };
 
   return (
-    <div className="bg-[#1a1a24] border border-white/10 rounded-2xl flex flex-col overflow-hidden">
+    <div className="bg-card border border-white/10 rounded-2xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 px-5 py-4 border-b border-white/8">
         <div className="w-2 h-2 rounded-full bg-emerald-400" />
