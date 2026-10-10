@@ -4,7 +4,20 @@ Groq is ~10x faster and required for Railway/Vercel deployment.
 """
 import os
 
-GROQ_MODEL  = "llama-3.3-70b-versatile"
+# Groq retires models from time to time, so we don't hard-code one: we use
+# GROQ_MODEL if it's set, otherwise the first of these the account can use,
+# otherwise any available chat model.
+PREFERRED_GROQ_MODELS = [
+    "openai/gpt-oss-120b",
+    "llama-3.3-70b-versatile",
+    "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "qwen/qwen3-32b",
+    "openai/gpt-oss-20b",
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "llama-3.1-8b-instant",
+]
+_NOT_CHAT = ("whisper", "guard", "tts", "playai", "orpheus", "prompt", "embed", "compound", "distil")
+_groq_model_cache: str | None = None
 OLLAMA_MODEL = "llama3.2"
 
 GENRES = [
@@ -26,11 +39,29 @@ def _groq_client():
     return Groq(api_key=key)
 
 
+def groq_model(client) -> str:
+    """The Groq chat model to use (looked up once, then cached)."""
+    global _groq_model_cache
+    if os.environ.get("GROQ_MODEL"):
+        return os.environ["GROQ_MODEL"]
+    if _groq_model_cache:
+        return _groq_model_cache
+    try:
+        available = [m.id for m in client.models.list().data if getattr(m, "active", True) is not False]
+    except Exception:
+        return PREFERRED_GROQ_MODELS[0]
+    chat = [m for m in available if not any(x in m.lower() for x in _NOT_CHAT)]
+    pick = next((m for m in PREFERRED_GROQ_MODELS if m in available), None) or (chat[0] if chat else PREFERRED_GROQ_MODELS[0])
+    _groq_model_cache = pick
+    print(f"[ai] using Groq model {pick}")
+    return pick
+
+
 def _chat(messages: list[dict], max_tokens: int = 2000) -> str:
     client = _groq_client()
     if client:
         resp = client.chat.completions.create(
-            model=GROQ_MODEL, messages=messages, max_tokens=max_tokens,
+            model=groq_model(client), messages=messages, max_tokens=max_tokens,
             temperature=0.3,
         )
         return resp.choices[0].message.content.strip()
@@ -135,7 +166,7 @@ def stream_messages(messages: list[dict], max_tokens: int = 1500):
     client = _groq_client()
     if client:
         stream = client.chat.completions.create(
-            model=GROQ_MODEL, messages=messages, max_tokens=max_tokens, stream=True,
+            model=groq_model(client), messages=messages, max_tokens=max_tokens, stream=True,
         )
         for chunk in stream:
             token = chunk.choices[0].delta.content or ""
