@@ -1,14 +1,17 @@
 services:
   - type: web
     name: booksummary-backend
-    env: python
+    runtime: python
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    # "python -m" finds uvicorn even when its script isn't on PATH
+    startCommand: python -m uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
     healthCheckPath: /api/health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
