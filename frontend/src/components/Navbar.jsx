@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { markWelcomeSeen, shouldShowWelcome } from "../utils/welcome";
+import { markWelcomeSeen } from "../utils/welcome";
 import AccountButton from "./AccountButton";
 
 const LINKS = [
-  { to: "/", label: "Today", end: true },
+  { to: "/today", label: "Today" },
   { to: "/notebook", label: "Notebook" },
   { to: "/planner", label: "Planner" },
   { to: "/library", label: "Library" },
@@ -15,7 +15,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   // On the landing page, keep the bar minimal: logo + one way in.
-  const landing = pathname === "/welcome" || (pathname === "/" && shouldShowWelcome());
+  const landing = pathname === "/" || pathname === "/welcome";
 
   const linkClass = ({ isActive }) =>
     `py-1 px-2 border-b-2 transition-colors ${
@@ -27,7 +27,10 @@ export default function Navbar() {
       <nav className="border-b border-white/10 bg-paper/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <span className="font-hand text-3xl leading-none text-white">My Notebook</span>
-          <Link to="/notebook" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">Open notebook →</Link>
+          <div className="flex items-center gap-4">
+            <Link to="/today" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">Today</Link>
+            <Link to="/notebook" onClick={markWelcomeSeen} className="text-slate-400 hover:text-white">Open notebook →</Link>
+          </div>
         </div>
       </nav>
     );
