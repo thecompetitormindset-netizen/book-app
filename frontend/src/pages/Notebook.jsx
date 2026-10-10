@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageFlip from "../components/PageFlip";
 import InkLayer, { StaticInk } from "../components/notebook/InkLayer";
@@ -9,6 +9,26 @@ import { actions, lastSaveFailed, usePersonal } from "../store/personal";
 import { useAuth } from "../auth";
 import { toLocalInput, tomorrowAt } from "../utils/dates";
 import { htmlToText, markdownToHtml, sanitizeHtml } from "../utils/richtext";
+
+// Every page is laid out on the same "paper" width and scaled to fit the
+// screen, so text wraps identically on a phone and a laptop and hand-drawn
+// ink stays next to the words it was drawn beside.
+const PAGE_W = 480;
+const MAX_ZOOM = 1.4;
+
+function useBoxSize(ref) {
+  const [size, setSize] = useState({ w: PAGE_W, h: 600 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return size;
+}
 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
 
@@ -39,10 +59,16 @@ function NoteEditor({ note, font, editorRef, onSave }) {
   );
 }
 
-function NotePage({ note, subject, live, pageNo, font, editorRef, onSave, tool }) {
+function NotePage({ note, live, pageNo, font, editorRef, onSave, tool }) {
+  const outer = useRef(null);
+  const { w, h } = useBoxSize(outer);
+  const zoom = Math.min(w / PAGE_W, MAX_ZOOM) || 1;
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-baseline justify-between gap-3 pl-[66px] pr-5 pt-2 h-[64px] shrink-0">
+    <div ref={outer} className="h-full w-full overflow-hidden">
+    {/* scale (not CSS zoom) so line breaks are computed at one fixed size everywhere */}
+    <div className="paper-page flex flex-col origin-top-left"
+      style={{ width: PAGE_W, height: h / zoom, transform: `scale(${zoom})` }}>
+      <div className="flex items-baseline justify-between gap-2 pl-[66px] pr-4 pt-2 h-[64px] shrink-0">
         {live ? (
           <input
             value={note.title}
@@ -54,8 +80,8 @@ function NotePage({ note, subject, live, pageNo, font, editorRef, onSave, tool }
         ) : (
           <span className="font-hand text-3xl flex-1 truncate">{note.title || "Untitled"}</span>
         )}
-        <span className="text-sm text-slate-500 shrink-0 text-right leading-tight">
-          {subject?.name} · {fmtDate(note.createdAt)}<br />p. {pageNo}
+        <span className="text-xs text-slate-500 shrink-0 text-right leading-tight whitespace-nowrap">
+          {fmtDate(note.createdAt)}<br />p. {pageNo}
         </span>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
@@ -74,6 +100,7 @@ function NotePage({ note, subject, live, pageNo, font, editorRef, onSave, tool }
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }
@@ -341,7 +368,7 @@ export default function Notebook() {
           )}
 
           {pages.length === 0 ? (
-            <div className="book" style={{ height: "min(60vh, 520px)" }}>
+            <div className="book mx-auto" style={{ height: "min(60vh, 520px)", maxWidth: PAGE_W * MAX_ZOOM }}>
               <div className="book-sheet paper-page flex flex-col items-center justify-center text-center p-8">
                 <p className="font-hand text-4xl mb-2">A fresh {subject?.name} notebook</p>
                 <p className="text-slate-400 mb-6">Start a page for today's class.</p>
@@ -349,6 +376,7 @@ export default function Notebook() {
               </div>
             </div>
           ) : (
+            <div className="mx-auto" style={{ maxWidth: PAGE_W * MAX_ZOOM }}>
             <PageFlip
               count={pages.length}
               index={index}
@@ -356,10 +384,11 @@ export default function Notebook() {
               swipe={mode === "type"}
               height="max(480px, calc(100vh - 290px))"
               renderPage={(i, { live: isLive }) => (
-                <NotePage note={pages[i]} subject={subject} live={isLive} pageNo={i + 1} font={font}
+                <NotePage note={pages[i]} live={isLive} pageNo={i + 1} font={font}
                   editorRef={editorRef} onSave={save} tool={tool} />
               )}
             />
+            </div>
           )}
         </>
       )}
